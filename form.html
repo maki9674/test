@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>スカウト用品発注フォーム（18団・27団専用）</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2e5c3f;
+    }
+
+    .section {
+      background: white;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: inline-block;
+      width: 120px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      padding: 5px;
+      margin: 5px 0 10px 0;
+      width: 200px;
+    }
+
+    .item-block {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+
+    .not-found {
+      color: red;
+    }
+
+    .invalid {
+      background-color: #ffe5e5;
+    }
+
+    button {
+      background-color: #2e5c3f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>スカウト用品発注フォーム（18団・27団専用）</h1>
+
+  <form id="orderForm">
+    <div class="section">
+      <label for="shozoku">所属：</label>
+      <select id="shozoku" name="shozoku" required>
+        <option value="">選択してください</option>
+        <option value="BVS（18）">BVS（18）</option>
+        <option value="CS（18）">CS（18）</option>
+        <option value="BS（18）">BS（18）</option>
+        <option value="VS（18）">VS（18）</option>
+        <option value="RS（18）">RS（18）</option>
+        <option value="Nina（27）">Nina（27）</option>
+      </select><br>
+
+      <label for="name">発注者名：</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+
+    <!-- 商品入力 1〜3 -->
+    <div class="section">
+      <div class="item-block" data-index="1">
+        <strong>商品①</strong><br>
+        <label>商品コード：</label>
+        <input type="text" name="cd1" class="code-input"><br>
+        <span class="name1"></span><br>
+        <span class="name2"></span><br>
+        <label>単価：</label><span class="price"></span><br>
+        <label>数量：</label>
+        <input type="number" name="qty1" class="qty-input" min="1"><br>
+        <label>小計：</label><span class="subtotal"></span><br>
+      </div>
+
+      <div class="item-block" data-index="2">
+        <strong>商品②</strong><br>
+        <label>商品コード：</label>
+        <input type="text" name="cd2" class="code-input"><br>
+        <span class="name1"></span><br>
+        <span class="name2"></span><br>
+        <label>単価：</label><span class="price"></span><br>
+        <label>数量：</label>
+        <input type="number" name="qty2" class="qty-input" min="1"><br>
+        <label>小計：</label><span class="subtotal"></span><br>
+      </div>
+
+      <div class="item-block" data-index="3">
+        <strong>商品③</strong><br>
+        <label>商品コード：</label>
+        <input type="text" name="cd3" class="code-input"><br>
+        <span class="name1"></span><br>
+        <span class="name2"></span><br>
+        <label>単価：</label><span class="price"></span><br>
+        <label>数量：</label>
+        <input type="number" name="qty3" class="qty-input" min="1"><br>
+        <label>小計：</label><span class="subtotal"></span><br>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <button type="submit">送信</button>
+    </div>
+  </form>
+
+  <script>
+    // 商品データ（実際はfetchで取得します）
+    const itemData = {
+      "12345": ["ロープ", "5m 黒", 300],
+      "23456": ["ナイフ", "安全ガード付き", 1200],
+      "34567": ["コンパス", "簡易タイプ", 800]
+    };
+
+    document.querySelectorAll('.item-block').forEach(block => {
+      const index = block.getAttribute('data-index');
+      const codeInput = block.querySelector('.code-input');
+      const qtyInput = block.querySelector('.qty-input');
+      const name1Span = block.querySelector('.name1');
+      const name2Span = block.querySelector('.name2');
+      const priceSpan = block.querySelector('.price');
+      const subtotalSpan = block.querySelector('.subtotal');
+
+      function updateInfo() {
+        const code = codeInput.value.trim();
+        const quantity = parseInt(qtyInput.value) || 0;
+
+        if (code && itemData[code]) {
+          const [name1, name2, price] = itemData[code];
+          name1Span.textContent = name1;
+          name2Span.textContent = name2;
+          priceSpan.textContent = price + " 円";
+          const subtotal = price * quantity;
+          subtotalSpan.textContent = subtotal ? subtotal + " 円" : "";
+          codeInput.classList.remove('invalid');
+          name1Span.classList.remove('not-found');
+        } else if (code) {
+          name1Span.textContent = "該当商品なし";
+          name2Span.textContent = "";
+          priceSpan.textContent = "";
+          subtotalSpan.textContent = "";
+          codeInput.classList.add('invalid');
+          name1Span.classList.add('not-found');
+        } else {
+          name1Span.textContent = "";
+          name2Span.textContent = "";
+          priceSpan.textContent = "";
+          subtotalSpan.textContent = "";
+          codeInput.classList.remove('invalid');
+          name1Span.classList.remove('not-found');
+        }
+      }
+
+      codeInput.addEventListener('input', updateInfo);
+      qtyInput.addEventListener('input', updateInfo);
+    });
+
+    // 送信処理（仮）実装予定
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert("（仮）送信ボタンが押されました。次にGASとの接続を行います。");
+    });
+　document.getElementById("orderForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const data = {
+    shozoku: document.getElementById("shozoku").value,
+    name: document.getElementById("name").value,
+    items: []
+  };
+
+  document.querySelectorAll(".item-block").forEach(block => {
+    const code = block.querySelector(".code-input").value.trim();
+    const qty = block.querySelector(".qty-input").value;
+    if (code !== "" && qty !== "") {
+      data.items.push({
+        code: code,
+        qty: Number(qty)
+      });
+    }
+  });
+
+  fetch("https://script.google.com/macros/s/AKfycbzmfvKCfGt7_0ObahVDkrbqvl_D8L7v6iocSSIxFZvRxvbhZ2Q2lQoVdROeEN0jt31CrA/exec", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.text())
+  .then(msg => {
+    alert("送信完了：" + msg);
+    document.getElementById("orderForm").reset();
+  })
+  .catch(err => {
+    alert("送信エラー：" + err);
+  });
+});
+
+  </script>
+</body>
+</html>
